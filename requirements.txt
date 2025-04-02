@@ -1,0 +1,5 @@
+pywin32==306
+pillow==10.1.0
+psutil==5.9.5
+keyboard==0.13.5
+colorama==0.4.6
