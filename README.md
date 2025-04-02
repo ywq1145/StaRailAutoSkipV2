@@ -6,11 +6,9 @@
 2. 双击运行，会自动请求管理员权限
 3. 程序会自动等待星穹铁道游戏启动
 
-## 工作原理
+## 注意事项
 
-该工具通过监控游戏窗口中特定位置的像素颜色来检测对话界面。当检测到对话界面时，程序会模拟按键操作以自动点击对话选项。
-
-程序使用Windows API的PrintWindow功能获取游戏窗口的截图，因此需要管理员权限才能正常工作。
+后台也可以自动点击，但别最小化。
 
 ## 自定义配置
 
@@ -51,4 +49,4 @@ pyinstaller --noconfirm --onefile --name="星穹铁道自动对话" --manifest=a
 
 ## 致谢
 
-感谢所有为本项目做出贡献的开发者和测试用户。
+代码参考[SyrieYume/GenshinAutoV2: 原神后台自动点剧情工具 v2版本。](https://github.com/SyrieYume/GenshinAutoV2)
