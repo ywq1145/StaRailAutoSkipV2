@@ -1,6 +1,6 @@
 # 星穹铁道自动对话工具
 
-一个简单的崩坏：星穹铁道自动对话工具，可以自动检测剧情对话并点击继续。使用到opencv所以把原来的c重构成了py。代码参考[SyrieYume/GenshinAutoV2: 原神后台自动点剧情工具 v2版本。](https://github.com/SyrieYume/GenshinAutoV2)
+一个简单的崩坏：星穹铁道自动对话工具，可以自动检测剧情对话并点击继续。代码参考[SyrieYume/GenshinAutoV2: 原神后台自动点剧情工具 v2版本。](https://github.com/SyrieYume/GenshinAutoV2)
 
 ## 系统要求
 
