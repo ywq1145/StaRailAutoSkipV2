@@ -1,6 +1,6 @@
 # 星穹铁道自动对话工具
 
-一个简单的崩坏：星穹铁道自动对话工具，可以自动检测剧情对话并点击继续,可以边刷视频边过剧情。代码参考[SyrieYume/GenshinAutoV2: 原神后台自动点剧情工具 v2版本。](https://github.com/SyrieYume/GenshinAutoV2)。反馈可发issue，或直接发至我的邮箱m83057112@gmail.com。
+一个简单的崩坏：星穹铁道自动对话工具，可以自动检测剧情对话并点击继续,边刷视频边过剧情。代码参考[SyrieYume/GenshinAutoV2: 原神后台自动点剧情工具 v2版本。](https://github.com/SyrieYume/GenshinAutoV2)反馈可发issue，或直接发至我的邮箱m83057112@gmail.com。
 
 ## 系统要求
 
