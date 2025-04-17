@@ -9,7 +9,7 @@ import psutil
 from ctypes.wintypes import RECT, POINT
 from PIL import Image
 import time
-from core.debug_utils import *
+from typing import List
 
 
 def get_window_info(hwnd):
@@ -149,7 +149,6 @@ def get_hwnd_by_pid(pid):
     return None
 
 
-# 检查程序是否以管理员权限运行
 def is_admin():
     try:
         return ctypes.windll.shell32.IsUserAnAdmin()
@@ -160,7 +159,7 @@ def is_admin():
 # 以管理员权限重启程序
 def restart_as_admin():
     if not is_admin():
-        print_info("正在请求管理员权限...")
+        print("正在请求管理员权限...")
         try:
             # 使用Python执行文件路径或打包后的exe路径
             if getattr(sys, 'frozen', False):
@@ -173,6 +172,6 @@ def restart_as_admin():
             ctypes.windll.shell32.ShellExecuteW(None, "runas", sys.executable, script, None, 1)
             sys.exit()
         except Exception as e:
-            print_error(f"请求管理员权限失败: {e}")
+            print(f"请求管理员权限失败: {e}")
             input("按Enter键退出...")
             sys.exit(1)

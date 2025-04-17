@@ -13,7 +13,7 @@
 
 1. 在[Releases](https://github.com/ywq1145/StaRailAutoSkipV2/releases)下载最新的发布版本 
 2. 运行游戏，确保是窗口模式
-3. 运行 `auto.exe`,最小化。
+3. 运行 `autoDialog.exe`。
 4. 程序会自动检测游戏窗口并开始监控剧情对话（通过检测像素，所以别开滤镜），此时游戏可切至后台
 5. 按 `Ctrl+P` 可以随时暂停/继续自动点击功能
 

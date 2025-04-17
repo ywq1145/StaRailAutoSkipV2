@@ -17,8 +17,9 @@ def preprocess_image(image):
 def calculate_similarity(template, target):
     """使用模板匹配计算相似度"""
     result = cv2.matchTemplate(target, template, cv2.TM_CCOEFF_NORMED)
-    similarity = result[0][0]  # 范围[-1,1]，1表示完全匹配
-    return (similarity + 1) / 2  # 转换为[0,1]范围
+    # similarity = result[0][0]  # 范围[-1,1]，1表示完全匹配
+    min_val, max_val, _, _ = cv2.minMaxLoc(result)
+    return max_val  # 转换为[0,1]范围
 
 
 def check_image_match(hwnd, config, window_info, enable_offset=False, offset=(0, 0), enable_debug=False, sp=False):
@@ -67,3 +68,5 @@ def check_image_match(hwnd, config, window_info, enable_offset=False, offset=(0,
         print(f"Similarity: {similarity}")
 
     return similarity >= config['threshold']
+
+

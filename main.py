@@ -1,7 +1,10 @@
+from math import floor
+
 import keyboard
 import colorama
 from core.cvutils import *
 from core.window_utils import *
+from core.debug_utils import *
 
 if getattr(sys, 'frozen', False):
     BASE_DIR = sys._MEIPASS
@@ -57,11 +60,11 @@ image_configs = {
 
 # 主函数
 def main():
-    # 检查管理员权限
+
     if not is_admin():
         restart_as_admin()
 
-    print_info("程序启动（管理员模式）")
+    print_info("程序启动")
     print_waiting("正在等待崩铁进程 StarRail.exe")
 
     # 等待进程
@@ -132,16 +135,17 @@ def main():
                     black_V_match = check_image_match(hwnd, image_configs['black_V_icon'], window_info)
                     # 找箭头
                     f = False
+
                     for i in range(0, 6, 1):
-                        arrow_match = check_image_match(hwnd, image_configs['arrow'], window_info, True, (0, -i * 82)
-                                                        , False)
+                        arrow_match = check_image_match(hwnd, image_configs['arrow'], window_info, True,
+                                                        (0, floor(-81.5 * i)), False)
                         if arrow_match:
                             f = True
                             print_info(f"检测到箭头,位置从下到上第{i + 1}个")
                             results = [0.0] * 5
                             for j in range(1, 5, 1):
                                 results[j] = check_image_match(hwnd, image_configs['num' + str(j)], window_info, True,
-                                                               (0, -i * 82), False, True)
+                                                               (0, floor(-81.5 * i)), False, True)
                             mx_idx = max(enumerate(results), key=lambda x: x[1])[0]
                             set_foreground(hwnd)
                             send_key(hwnd, 0x30 + mx_idx)
@@ -162,6 +166,7 @@ def main():
                         send_key(hwnd, 0x31)
                         time.sleep(0.075)
                         send_key(hwnd, 0x20)
+                        pass
                     except Exception as e:
                         pass
                 elif black_V_match:  # 黑屏类
@@ -175,7 +180,7 @@ def main():
                     except Exception as e:
                         pass
                 elif after_dialog == 0:
-                    after_dialog = 16
+                    after_dialog = 5
                     print_info("剧情对话结束")
 
             if after_dialog > 1:

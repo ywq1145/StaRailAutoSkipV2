@@ -1,0 +1,1 @@
+nuitka --standalone --onefile --include-package=win32gui,win32con,win32ui,win32process --include-data-dir="templates=templates" --windows-icon-from-ico=ico.jpg --output-dir=dist --output-filename="autoDialog.exe" --assume-yes-for-downloads --enable-plugin=numpy --windows-uac-admin main.py
