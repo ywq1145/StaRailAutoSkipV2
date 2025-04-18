@@ -5,6 +5,8 @@ import colorama
 from core.cvutils import *
 from core.window_utils import *
 from core.debug_utils import *
+import requests
+from packaging import version
 
 if getattr(sys, 'frozen', False):
     BASE_DIR = sys._MEIPASS
@@ -18,6 +20,8 @@ colorama.init()
 
 num_pos = (1727 - 490, 951 - 204)
 # 490 204
+
+cur_version = "0.3"
 
 image_configs = {
     'dia_L_icon': {
@@ -33,6 +37,11 @@ image_configs = {
     'arrow': {
         'pos': (1752 - 443, 866 - 113),  # 相对窗口客户区的坐标
         'path': os.path.join(BASE_DIR, 'templates/arrow.png'),  # 模板图片路径
+        'threshold': 0.8  # 相似度阈值
+    },
+    'bubble': {
+        'pos': (1749 - 438, 857 - 193 - 81),  # 相对窗口客户区的坐标
+        'path': os.path.join(BASE_DIR, 'templates/bubble.png'),  # 模板图片路径
         'threshold': 0.8  # 相似度阈值
     },
     'num1': {
@@ -58,12 +67,44 @@ image_configs = {
 }
 
 
+def create_hyperlink(url, text):
+    return f"\x1B]8;;{url}\x1B\\{text}\x1B]8;;\x1B\\"
+
+
+def check_for_update(current_version):
+    try:
+        response = requests.get(
+            "http://39.105.210.187:5000/api/check-update",  # 我的更新服务器
+            timeout=5
+        )
+        response.raise_for_status()
+        data = response.json()
+        latest_version = data['version']
+        download_url = data['url']
+
+        if version.parse(latest_version) > version.parse(current_version):
+            link = create_hyperlink(download_url, "立即下载")
+            print_info(f"新版本 {latest_version} 可用！{link} ({download_url})")
+        else:
+            print_info("当前已是最新版本。")
+    except requests.exceptions.RequestException as e:
+        print_error(f"检查更新失败：{str(e)}")
+
+
+def get_most_possible_num(offset, hwnd, window_info):
+    results = [0.0] * 5
+    for j in range(1, 5, 1):
+        results[j] = check_image_match(hwnd, image_configs['num' + str(j)], window_info, True,
+                                       (0, floor(-81.5 * offset)), False, True)
+    return max(enumerate(results), key=lambda x: x[1])[0]
+
+
 # 主函数
 def main():
-
     if not is_admin():
         restart_as_admin()
-
+    # 检查更新
+    check_for_update(cur_version)
     print_info("程序启动")
     print_waiting("正在等待崩铁进程 StarRail.exe")
 
@@ -133,50 +174,45 @@ def main():
                 try:
                     dia_L_match = check_image_match(hwnd, image_configs['dia_L_icon'], window_info)
                     black_V_match = check_image_match(hwnd, image_configs['black_V_icon'], window_info)
-                    # 找箭头
+                    # 找箭头或气泡
                     f = False
-
+                    bubble_pos = -1
                     for i in range(0, 6, 1):
                         arrow_match = check_image_match(hwnd, image_configs['arrow'], window_info, True,
                                                         (0, floor(-81.5 * i)), False)
+                        bubble_match = check_image_match(hwnd, image_configs['bubble'], window_info, True,
+                                                         (0, floor(-81.5 * i)), False)
+                        if bubble_match:
+                            bubble_pos = i
                         if arrow_match:
                             f = True
                             print_info(f"检测到箭头,位置从下到上第{i + 1}个")
-                            results = [0.0] * 5
-                            for j in range(1, 5, 1):
-                                results[j] = check_image_match(hwnd, image_configs['num' + str(j)], window_info, True,
-                                                               (0, floor(-81.5 * i)), False, True)
-                            mx_idx = max(enumerate(results), key=lambda x: x[1])[0]
+                            mx_idx = get_most_possible_num(i, hwnd, window_info)
                             set_foreground(hwnd)
                             send_key(hwnd, 0x30 + mx_idx)
                             break
                     if f:
                         continue
+                    # 走到这里说明没有必选项
+                    if bubble_pos != -1:  # 如果有选项
+                        print_info(f"检测到气泡,位置从下到上第{bubble_pos + 1}个")
+                        mx_idx = get_most_possible_num(bubble_pos, hwnd, window_info)
+                        set_foreground(hwnd)
+                        send_key(hwnd, 0x30 + mx_idx)
+                        continue
 
                 except Exception as e:
                     continue
 
-                if dia_L_match:  # 说明没有箭头类选项
+                if dia_L_match or black_V_match:  # 说明只是普通对话，没有选项
                     if after_dialog > 0:
                         after_dialog = 0
                         print_info("检测到进入剧情对话")
                     # 发送按键
                     try:
                         set_foreground(hwnd)
-                        send_key(hwnd, 0x31)
-                        time.sleep(0.075)
                         send_key(hwnd, 0x20)
                         pass
-                    except Exception as e:
-                        pass
-                elif black_V_match:  # 黑屏类
-                    if after_dialog > 0:
-                        after_dialog = 0
-                        print_info("检测到进入黑屏对话")
-                    # 发送按键
-                    try:
-                        set_foreground(hwnd)
-                        send_key(hwnd, 0x20)
                     except Exception as e:
                         pass
                 elif after_dialog == 0:
