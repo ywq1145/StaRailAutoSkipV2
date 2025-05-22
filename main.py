@@ -199,7 +199,7 @@ def main():
                             bubble_match = check_image_match(hwnd,
                                                              image_configs['bubble_odd'],
                                                              window_info,
-                                                             enable_offset=False,
+                                                             enable_offset=True,
                                                              offset=(0, floor(-81.5 * i)),
                                                              enable_debug=False,
                                                              img_input=img,
