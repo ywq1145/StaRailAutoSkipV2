@@ -2,26 +2,28 @@ from math import floor
 
 import keyboard
 import colorama
+
 from core.cvutils import *
 from core.window_utils import *
 from core.debug_utils import *
 import requests
 from packaging import version
 
-if getattr(sys, 'frozen', False):
-    BASE_DIR = sys._MEIPASS
-else:
-    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 # 确保DPI感知
 ctypes.windll.shcore.SetProcessDpiAwareness(2)  # PROCESS_PER_MONITOR_DPI_AWARE
 
 # 初始化彩色输出
 colorama.init()
 
+if getattr(sys, 'frozen', False):
+    BASE_DIR = sys._MEIPASS
+else:
+    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
 num_pos = (1727 - 490, 951 - 204)
 # 490 204
 
-cur_version = "0.3"
+cur_version = "0.4"
 
 image_configs = {
     'dia_L_icon': {
@@ -34,15 +36,25 @@ image_configs = {
         'path': os.path.join(BASE_DIR, 'templates/black_V.png'),  # 模板图片路径
         'threshold': 0.8  # 相似度阈值
     },
-    'arrow': {
+    'arrow_odd': {
         'pos': (1752 - 443, 866 - 113),  # 相对窗口客户区的坐标
-        'path': os.path.join(BASE_DIR, 'templates/arrow.png'),  # 模板图片路径
-        'threshold': 0.8  # 相似度阈值
+        'path': os.path.join(BASE_DIR, 'templates/arrow_odd.png'),  # 模板图片路径
+        'threshold': 0.75  # 相似度阈值
     },
-    'bubble': {
-        'pos': (1749 - 438, 857 - 193 - 81),  # 相对窗口客户区的坐标
-        'path': os.path.join(BASE_DIR, 'templates/bubble.png'),  # 模板图片路径
-        'threshold': 0.8  # 相似度阈值
+    'arrow_even': {
+        'pos': (1841 - 532, 956 - 203),  # 相对窗口客户区的坐标
+        'path': os.path.join(BASE_DIR, 'templates/arrow_even.png'),  # 模板图片路径
+        'threshold': 0.75  # 相似度阈值
+    },
+    'bubble_odd': {
+        'pos': (1311, 745),  # 相对窗口客户区的坐标
+        'path': os.path.join(BASE_DIR, 'templates/bubble_odd.png'),  # 模板图片路径
+        'threshold': 0.7  # 相似度阈值
+    },
+    'bubble_even': {
+        'pos': (1809 - 498, 947 - 283),  # 相对窗口客户区的坐标
+        'path': os.path.join(BASE_DIR, 'templates/bubble_even.png'),  # 模板图片路径
+        'threshold': 0.7  # 相似度阈值
     },
     'num1': {
         'pos': num_pos,  # 相对窗口客户区的坐标
@@ -67,10 +79,6 @@ image_configs = {
 }
 
 
-def create_hyperlink(url, text):
-    return f"\x1B]8;;{url}\x1B\\{text}\x1B]8;;\x1B\\"
-
-
 def check_for_update(current_version):
     try:
         response = requests.get(
@@ -83,8 +91,7 @@ def check_for_update(current_version):
         download_url = data['url']
 
         if version.parse(latest_version) > version.parse(current_version):
-            link = create_hyperlink(download_url, "立即下载")
-            print_info(f"新版本 {latest_version} 可用！{link} ({download_url})")
+            print_info(f"新版本 {latest_version} 可用！ {download_url}")
         else:
             print_info("当前已是最新版本。")
     except requests.exceptions.RequestException as e:
@@ -121,7 +128,6 @@ def main():
     print_waiting("正在等待崩铁窗口")
 
     # 等待窗口
-    hwnd = None
     while True:
         hwnd = get_hwnd_by_pid(pid)
         if hwnd:
@@ -130,7 +136,7 @@ def main():
                 break
         time.sleep(0.2)
 
-    print("\r", end="")  # 清除等待消息
+    print("\033[H\033[J")  # 清除等待消息
     print_info(f"Hwnd = 0x{hwnd:x}")
 
     # 获取详细窗口信息
@@ -175,13 +181,47 @@ def main():
                     dia_L_match = check_image_match(hwnd, image_configs['dia_L_icon'], window_info)
                     black_V_match = check_image_match(hwnd, image_configs['black_V_icon'], window_info)
                     # 找箭头或气泡
+                    # 这里要用同一张截图
+                    # 因为可能在检测完某位之后选项才出现
+                    img = capture_window(hwnd)
                     f = False
                     bubble_pos = -1
                     for i in range(0, 6, 1):
-                        arrow_match = check_image_match(hwnd, image_configs['arrow'], window_info, True,
-                                                        (0, floor(-81.5 * i)), False)
-                        bubble_match = check_image_match(hwnd, image_configs['bubble'], window_info, True,
-                                                         (0, floor(-81.5 * i)), False)
+                        if i % 2 == 0:
+                            arrow_match = check_image_match(hwnd,
+                                                            image_configs['arrow_odd'],
+                                                            window_info,
+                                                            enable_offset=True,
+                                                            offset=(0, floor(-81.5 * i)),
+                                                            enable_debug=True,
+                                                            img_input=img,
+                                                            )
+                            bubble_match = check_image_match(hwnd,
+                                                             image_configs['bubble_odd'],
+                                                             window_info,
+                                                             enable_offset=True,
+                                                             offset=(0, floor(-81.5 * i)),
+                                                             enable_debug=False,
+                                                             img_input=img,
+                                                             )
+                        else:
+                            arrow_match = check_image_match(hwnd,
+                                                            image_configs['arrow_even'],
+                                                            window_info,
+                                                            enable_offset=True,
+                                                            offset=(0, floor(-163 * ((i - 1) / 2))),
+                                                            enable_debug=True,
+                                                            img_input=img,
+                                                            )
+                            bubble_match = check_image_match(hwnd,
+                                                             image_configs['bubble_even'],
+                                                             window_info,
+                                                             enable_offset=True,
+                                                             offset=(0, floor(-163 * ((i - 1) / 2))),
+                                                             enable_debug=False,
+                                                             img_input=img,
+                                                             )
+
                         if bubble_match:
                             bubble_pos = i
                         if arrow_match:
@@ -225,7 +265,7 @@ def main():
                     ctypes.windll.user32.ClipCursor(None)
                 except Exception as e:
                     pass
-            time.sleep(0.1)
+            time.sleep(0.07)
 
     except KeyboardInterrupt:
         print_info("程序已退出")

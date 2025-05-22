@@ -43,6 +43,7 @@ debug_screenshot*.png
 detection_*.png
 initial_screenshot.png
 *.log
+processed_screen.png
 
 # Windows系统文件
 Thumbs.db

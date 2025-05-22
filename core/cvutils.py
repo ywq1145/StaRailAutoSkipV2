@@ -22,7 +22,8 @@ def calculate_similarity(template, target):
     return max_val  # 转换为[0,1]范围
 
 
-def check_image_match(hwnd, config, window_info, enable_offset=False, offset=(0, 0), enable_debug=False, sp=False):
+def check_image_match(hwnd, config, window_info, enable_offset=False, offset=(0, 0), enable_debug=False,
+                      return_sim=False, img_input=None):
     """
     图像匹配检测函数
     config需要包含：
@@ -31,7 +32,10 @@ def check_image_match(hwnd, config, window_info, enable_offset=False, offset=(0,
     - 'threshold': 相似度阈值
     """
     # 获取窗口截图（使用原有capture_window方法）
-    full_image = capture_window(hwnd)
+    if img_input is not None:
+        full_image = img_input
+    else:
+        full_image = capture_window(hwnd)
 
     # 转换为OpenCV格式
     screen_cv = cv2.cvtColor(np.array(full_image), cv2.COLOR_RGB2BGR)
@@ -59,7 +63,7 @@ def check_image_match(hwnd, config, window_info, enable_offset=False, offset=(0,
     if enable_debug:
         cv2.imwrite('processed_screen.png', target_region)
 
-    if sp:
+    if return_sim:
         return calculate_similarity(config['cached_template'], preprocess_image(target_region))
 
     # 计算相似度
@@ -68,5 +72,3 @@ def check_image_match(hwnd, config, window_info, enable_offset=False, offset=(0,
         print(f"Similarity: {similarity}")
 
     return similarity >= config['threshold']
-
-

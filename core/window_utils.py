@@ -9,7 +9,6 @@ import psutil
 from ctypes.wintypes import RECT, POINT
 from PIL import Image
 import time
-from typing import List
 
 
 def get_window_info(hwnd):
