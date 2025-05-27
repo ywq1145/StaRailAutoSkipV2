@@ -26,7 +26,7 @@
 ```bash
 pyinstaller package.spec --noconfirm --clean --distpath ./dist --workpath ./build
 ```
-使用nuitka使用pack_nuitka.txt的命令（似乎用这个打包不能用conda），并且我的电脑上只有用nuitka打包才能正常执行于后台。
+使用nuitka打包使用pack_nuitka.txt的命令（似乎用这个打包不能用conda），并且我的电脑上只有用nuitka打包才能正常执行于后台。
 
 ## 工作原理
 
